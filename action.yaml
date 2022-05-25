@@ -103,4 +103,9 @@ runs:
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
 
+        # Push to Jira as a json data format.
+        data='{"data": {"id":"%s","action":"%s","title":"%s","description":"%s","component":"%s","commentContent":"%s"}}\n'
+        data=$(printf "$data" "$id" "$action" "$title" "$description" "$component" "$commentContent")
+        curl -X POST -H 'Content-type: application/json' --data "${data}" "${{ inputs.webhook-url }}"
+
       shell: bash

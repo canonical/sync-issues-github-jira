@@ -12,5 +12,5 @@ jobs:
       - uses: ./
         with:
           jira-project: 'DEENG'
-          webhook-url: 'https://example.com/some-jira-secret-webhook-url'
+          webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
           component: 'WSL'
