@@ -3,21 +3,28 @@ inputs:
   jira-project:
     description: 'Prefix of Jira project, without trailing -'
     required: true
+  component:
+    description: 'Which component to target'
+    required: true
   webhook-url:
     description: 'Jira integration webhook URL'
     required: true
-  component:
-    description: 'Which component to target'
-    required: false
+  label:
+    description: 'Which label will trigger Jira import'
+    required: true
+    default: 'jira'
+
 runs:
   using: "composite"
   steps:
     - name: Dump GitHub context
       run: echo '${{ toJSON(github) }}'
       shell: bash
-    - name: restrict action to issues and issue comments
+    - name: restrict action to labelled issues and issue comments
       run: |
         set -eux
+
+        echo "NeedsJiraUpdate=false" >> $GITHUB_ENV
 
         if [ ${{ github.event_name }} != "issues" ] && [ ${{ github.event_name }} != "issue_comment" ]; then
           echo "This action only work on issue events. Please use on: issues or issue_comment to use this action."
@@ -28,15 +35,46 @@ runs:
           echo "This action only work on issues, not pull requests."
           exit 0
         fi
+
+        # Issue creation with label will trigger 2 events and run twice: one create, one labelled.
+        # let just focus on labelling then for creating issues Jira-side.
+        if [ ${{ github.event_name }} == "issues" ] && [ ${{ github.event.action }} == "opened" ]; then
+          echo "Ignoring creation of issues as a label will trigger a second event."
+          exit 0
+        fi
+
+        # We only operate on labelled issues or issues that are just unlabeled with our desired label
+        ## check if one label of labels is our jira label
+        toconsider=${{ contains(github.event.issue.labels.*.name, inputs.label) }}
+        ## second chance, this has just been unlabeled and needs to be deleted on Jira
+        if [ ${{ github.event.action }} == "unlabeled" ] && [ ${{ github.event.label.name }} == ${{ inputs.label }} ]; then
+          toconsider=true
+        fi
+        if [ "${toconsider}" == false ]; then
+          echo "Our desired label not found on issue or not unlabeled, skipping"
+          exit 0
+        fi
+
+        # And finally, for the "labeled" event, we are only interested if the new added label is our desired one.
+        if [ ${{ github.event.action }} == "labeled" ] && [ ${{ github.event.label.name }} != ${{ inputs.label }} ]; then
+          echo "Not interested in this action, skipping"
+          exit 0
+        fi
+
+        # last one wins
+        echo "NeedsJiraUpdate=true" >> $GITHUB_ENV
       shell: bash
-    - run: |
+
+    - name: "Update jira"
+      if: ${{ env.NeedsJiraUpdate == 'true' }}
+      run: |
         set -eux
 
         # Compute ID of Jira ticket
-        id="${{ github.jira-project }}-GH-${{ github.event.repository.name }}-${{ github.event.issue.number }}"
-        title=${{ github.event.issue.title }}
-        description=${{ github.event.issue.body }}
-        component=${{ github.component }}
+        id="${{ inputs.jira-project }}-GH-${{ github.event.repository.name }}-${{ github.event.issue.number }}"
+        title="${{ github.event.issue.title }}"
+        description="${{ github.event.issue.body }}"
+        component="${{ inputs.component }}"
         commentContent=""
 
         # Choose Jira action based on event type and action.
@@ -59,6 +97,6 @@ runs:
           commentContent=${{ github.event.comment.body }}
         fi
 
-        echo "$id $action $title $description $component $commentContent"
+        echo "PUSHING: $id $action $title $description $component $commentContent"
 
       shell: bash
