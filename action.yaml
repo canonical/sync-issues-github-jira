@@ -81,15 +81,17 @@ runs:
         action=""
         if [ ${{ github.event_name }} == "issues" ]; then
           action=Update
-          if [ ${{ github.event.action }} == "create" ]; then
+          if [ ${{ github.event.action }} == "labeled" ]; then
             action=Create
-          else if [ ${{ github.event.action }} == "reopen" ]; then
+          elif [ ${{ github.event.action }} == "reopen" ]; then
             action=Reopen
-          else if [ ${{ github.event.action }} == "deleted" ] || [ ${{ github.event.action }} == "closed" ]; then
+          elif [ ${{ github.event.action }} == "deleted" ] || [ ${{ github.event.action }} == "unlabeled" ]; then
+            action=Delete
+          elif [ ${{ github.event.action }} == "closed" ]; then
             action=Close
           fi
         else
-          action = AddComment
+          action=AddComment
           if [ ${{ github.event.action }} == "deleted" ]; then
             echo "No way to match deleted comment in Jira"
             exit 0
