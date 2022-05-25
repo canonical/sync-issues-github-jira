@@ -1,0 +1,63 @@
+name: 'Sync github issues to jira'
+inputs:
+  jira-project:
+    description: 'Prefix of Jira project, without trailing -'
+    required: true
+  webhook-url:
+    description: 'Jira integration webhook URL'
+    required: true
+  component:
+    description: 'Which component to target'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Dump GitHub context
+      run: echo '${{ toJSON(github) }}'
+    - name: restrict action to issues and issue comments
+      run: |
+        set -eux
+
+        if [ ${{ github.event_name }} != "issues" ] && [ ${{ github.event_name }} != "issue_comment" ]; then
+          echo "This action only work on issue events. Please use on: issues or issue_comment to use this action."
+          exit 1
+        fi
+
+        if [ ${{ github.event.issue.pull_request }} ]; then
+          echo "This action only work on issues, not pull requests."
+          exit 0
+        fi
+      shell: bash
+    - run: |
+        set -eux
+
+        # Compute ID of Jira ticket
+        id="${{ github.jira-project }}-GH-${{ github.event.repository.name }}-${{ github.event.issue.number }}"
+        title=${{ github.event.issue.title }}
+        description=${{ github.event.issue.body }}
+        component=${{ github.component }}
+        commentContent=""
+
+        # Choose Jira action based on event type and action.
+        action=""
+        if [ ${{ github.event_name }} == "issues" ]; then
+          action=Update
+          if [ ${{ github.event.action }} == "create" ]; then
+            action=Create
+          else if [ ${{ github.event.action }} == "reopen" ]; then
+            action=Reopen
+          else if [ ${{ github.event.action }} == "deleted" ] || [ ${{ github.event.action }} == "closed" ]; then
+            action=Close
+          fi
+        else
+          action = AddComment
+          if [ ${{ github.event.action }} == "deleted" ]; then
+            echo "No way to match deleted comment in Jira"
+            exit 0
+          fi
+          commentContent=${{ github.event.comment.body }}
+        fi
+
+        echo "$id $action $title $description $component $commentContent"
+
+      shell: bash
