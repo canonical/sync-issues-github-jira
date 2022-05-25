@@ -1,13 +1,15 @@
 name: 'Sync github issues to jira'
 inputs:
-  component:
-    description: 'Which component to target'
-    required: true
   webhook-url:
-    description: 'Jira integration webhook URL'
+    description: >
+      Jira integration webhook URL.
+      Store it as a secret as anyone who has access to it will be able to post to your Jira board.
     required: true
+  component:
+    description: 'Jira component to attach your issue to. This component should exists in your project.'
+    required: false
   label:
-    description: 'Which label will trigger Jira import'
+    description: 'Label which will trigger a Jira import.'
     required: true
     default: 'jira'
 
