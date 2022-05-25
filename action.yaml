@@ -83,9 +83,10 @@ runs:
           action=Update
           if [ ${{ github.event.action }} == "labeled" ]; then
             action=Create
-          elif [ ${{ github.event.action }} == "reopen" ]; then
+          elif [ ${{ github.event.action }} == "reopened" ]; then
             action=Reopen
           elif [ ${{ github.event.action }} == "deleted" ] || [ ${{ github.event.action }} == "unlabeled" ]; then
+            # Note: deleting issue from GH is not supported ATM as there is no more label attached. unlabeled is supported.
             action=Delete
           elif [ ${{ github.event.action }} == "closed" ]; then
             action=Close
@@ -93,10 +94,11 @@ runs:
         else
           action=AddComment
           if [ ${{ github.event.action }} == "deleted" ]; then
-            echo "No way to match deleted comment in Jira"
+            echo "Deleting comment on Jira is not supported ATM, skipping."
             exit 0
           fi
-          commentContent=${{ github.event.comment.body }}
+          # For now, editing comments will add a new one on Jira.
+          commentContent="${{ github.event.comment.body }}"
         fi
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
