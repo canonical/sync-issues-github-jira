@@ -17,9 +17,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Dump GitHub context
-      run: echo '${{ toJSON(github) }}'
-      shell: bash
+    #- name: Dump GitHub context
+    #  run: echo '${{ toJSON(github) }}'
+    #  shell: bash
     - name: restrict action to labelled issues and issue comments
       run: |
         set -eux
