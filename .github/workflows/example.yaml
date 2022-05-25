@@ -11,6 +11,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          jira-project: 'DEENG'
-          webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
           component: 'WSL'
+          webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}

@@ -1,8 +1,5 @@
 name: 'Sync github issues to jira'
 inputs:
-  jira-project:
-    description: 'Prefix of Jira project, without trailing -'
-    required: true
   component:
     description: 'Which component to target'
     required: true
@@ -70,8 +67,8 @@ runs:
       run: |
         set -eux
 
-        # Compute ID of Jira ticket
-        id="${{ inputs.jira-project }}-GH-${{ github.event.repository.name }}-${{ github.event.issue.number }}"
+        # ID is the html url to keep a link between systems as there is no way to force an ID on Jira side.
+        id="${{ github.event.issue.html_url }}"
         title="${{ github.event.issue.title }}"
         description="${{ github.event.issue.body }}"
         component="${{ inputs.component }}"
