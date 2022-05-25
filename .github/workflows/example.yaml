@@ -1,0 +1,16 @@
+name: Sync GitHub issues to Jira example
+
+on:
+  issues:
+  issue_comment:
+
+jobs:
+  sync-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          jira-project: 'DEENG'
+          webhook-url: 'https://example.com/some-jira-secret-webhook-url'
+          component: 'WSL'
