@@ -9,5 +9,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          component: 'WSL'
+          component: 'GitHub to Jira import'
           webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
