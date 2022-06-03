@@ -72,7 +72,9 @@ runs:
         # ID is the html url to keep a link between systems as there is no way to force an ID on Jira side.
         id="${{ github.event.issue.html_url }}"
         title="${{ github.event.issue.title }}"
-        description="${{ github.event.issue.body }}\n\nOpened by ${{ github.event.issue.user.login }}."
+        description="${{ github.event.issue.body }}
+        
+        Opened by ${{ github.event.issue.user.login }}."
         component="${{ inputs.component }}"
         commentContent=""
 
@@ -97,7 +99,8 @@ runs:
             exit 0
           fi
           # For now, editing comments will add a new one on Jira.
-          commentContent="From ${{ github.actor }}:\n${{ github.event.comment.body }}"
+          commentContent="From ${{ github.actor }}:
+        ${{ github.event.comment.body }}"
         fi
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
