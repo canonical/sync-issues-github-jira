@@ -103,8 +103,14 @@ runs:
         echo "PUSHING: $id $action $title $description $component $commentContent"
 
         # Push to Jira as a json data format.
-        data='{"data": {"id":"%s","action":"%s","title":"%s","description":"%s","component":"%s","commentContent":"%s"}}\n'
-        data=$(printf "$data" "$id" "$action" "$title" "$description" "$component" "$commentContent")
+        data=$(jq -n \
+                  --arg id "$id" \
+                  --arg action "$action" \
+                  --arg title "$title" \
+                  --arg description "$description" \
+                  --arg component "$component" \
+                  --arg commentContent "$commentContent" \
+                  '{data: {id: $id, action: $action, title: $title, description: $description, component: $component, commentContent: $commentContent}}')
         curl -X POST -H 'Content-type: application/json' --data "${data}" "${{ inputs.webhook-url }}"
 
       shell: bash
