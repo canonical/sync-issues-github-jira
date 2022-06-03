@@ -9,5 +9,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          component: 'GitHub to Jira import'
+          component: 'GitHub issue sync'
           webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
