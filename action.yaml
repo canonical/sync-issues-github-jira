@@ -97,7 +97,7 @@ runs:
             exit 0
           fi
           # For now, editing comments will add a new one on Jira.
-          commentContent="${{ github.event.comment.body }}"
+          commentContent="From ${{ github.actor }}:\n${{ github.event.comment.body }}"
         fi
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
