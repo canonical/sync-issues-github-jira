@@ -70,12 +70,12 @@ runs:
         set -eux
 
         # ID is the html url to keep a link between systems as there is no way to force an ID on Jira side.
-        id="${{ github.event.issue.html_url }}"
-        title="${{ github.event.issue.title }}"
-        description="${{ github.event.issue.body }}
+        id='${{ github.event.issue.html_url }}'
+        title='${{ github.event.issue.title }}'
+        description='${{ github.event.issue.body }}
         
-        Opened by ${{ github.event.issue.user.login }}."
-        component="${{ inputs.component }}"
+        Opened by ${{ github.event.issue.user.login }}.'
+        component='${{ inputs.component }}'
         commentContent=""
 
         # Choose Jira action based on event type and action.
@@ -99,8 +99,8 @@ runs:
             exit 0
           fi
           # For now, editing comments will add a new one on Jira.
-          commentContent="From ${{ github.actor }}:
-        ${{ github.event.comment.body }}"
+          commentContent='From ${{ github.actor }}:
+        ${{ github.event.comment.body }}'
         fi
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
@@ -114,6 +114,6 @@ runs:
                   --arg component "$component" \
                   --arg commentContent "$commentContent" \
                   '{data: {id: $id, action: $action, title: $title, description: $description, component: $component, commentContent: $commentContent}}')
-        curl -X POST -H 'Content-type: application/json' --data "${data}" "${{ inputs.webhook-url }}"
+        curl -X POST -H 'Content-type: application/json' --data "${data}" '${{ inputs.webhook-url }}'
 
       shell: bash
