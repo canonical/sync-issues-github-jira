@@ -66,16 +66,21 @@ runs:
 
     - name: "Update jira"
       if: ${{ env.NeedsJiraUpdate == 'true' }}
+      env:
+        # ID is the html url to keep a link between systems as there is no way to force an ID on Jira side.
+        id: ${{ github.event.issue.html_url }}
+        title: ${{ github.event.issue.title }}
+        body: ${{ github.event.issue.body }}
+        author: ${{ github.event.issue.user.login }}
+        component: ${{ inputs.component }}
+        commentAuthor: ${{ github.actor }}
+        comment: ${{ github.event.comment.body }}
       run: |
         set -eux
 
-        # ID is the html url to keep a link between systems as there is no way to force an ID on Jira side.
-        id='${{ github.event.issue.html_url }}'
-        title='${{ github.event.issue.title }}'
-        description='${{ github.event.issue.body }}
-        
-        Opened by ${{ github.event.issue.user.login }}.'
-        component='${{ inputs.component }}'
+        description="${body}
+
+        Opened by ${author}."
         commentContent=""
 
         # Choose Jira action based on event type and action.
@@ -99,8 +104,8 @@ runs:
             exit 0
           fi
           # For now, editing comments will add a new one on Jira.
-          commentContent='From ${{ github.actor }}:
-        ${{ github.event.comment.body }}'
+          commentContent="From ${commentAuthor}:
+        ${comment}"
         fi
 
         echo "PUSHING: $id $action $title $description $component $commentContent"
