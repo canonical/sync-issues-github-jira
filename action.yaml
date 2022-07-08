@@ -78,6 +78,21 @@ runs:
       run: |
         set -eux
 
+        # Convert markdown to JIRA using mistletoe package which is available starting with impish.
+        # Since GH runners only have LTS versions it's safe to only check for focal which doesn't have the package.
+        if [ $(lsb_release -c -s) == "focal" ]; then
+          echo "Converting Markdown to JIRA is only possible starting with Ubuntu 22.04 (jammy). Pushing verbatim content to JIRA..."
+        else
+          TMPDIR=$(mktemp -d)
+          trap 'rm -rf -- "$TMPDIR"' EXIT
+
+          sudo apt install -y python3-mistletoe
+          echo ${body} > $TMPDIR/body.md
+          echo ${comment} > $TMPDIR/comment.md
+          body=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/body.md)
+          comment=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/comment.md)
+        fi
+
         description="${body}
 
         Opened by ${author}."
