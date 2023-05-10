@@ -1,13 +1,12 @@
 name: Sync GitHub issues to Jira example
-
 on: [issues, issue_comment]
 
 jobs:
   sync-issues:
+    name: Sync issues to Jira
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          component: 'GitHub issue sync'
           webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
