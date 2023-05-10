@@ -1,4 +1,5 @@
 # Sync issues from GitHub to Jira
+
 Automation to sync issues from GitHub (using GitHub actions) to Jira (via Jira webhooks)
 
 ## Principle
@@ -30,7 +31,7 @@ Once labelled:
 ## Usage
 
 ```yaml
-- uses: ubuntu/sync-issues-github-jira@v1
+- uses: canonical/sync-issues-github-jira@v1
   with:
     # Jira integration webhook URL.
     # Store it as a secret as anyone who has access to it will be able to post to your Jira board.
@@ -54,14 +55,15 @@ To trigger your action, you need to listen on both `issues` and `issue_comment` 
 ```yaml
 name: Sync GitHub issues to Jira
 on: [issues, issue_comment]
+
 jobs:
   sync-issues:
-    name: Sync GitHub issues to Jira
+    name: Sync issues to Jira
     runs-on: ubuntu-latest
     steps:
-    - uses: ubuntu/sync-issues-github-jira@v1
-      with:
-        webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
+      - uses: canonical/sync-issues-github-jira@v1
+        with:
+          webhook-url: ${{ secrets.JIRA_WEBHOOK_URL }}
 ```
 
 As stated in the description, use a secret to store your Jira webhook URL. Otherwise, anyone who has access to it
