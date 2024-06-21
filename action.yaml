@@ -1,4 +1,4 @@
-name: 'Sync github issues to jira'
+name: "Sync github issues to jira"
 inputs:
   webhook-url:
     description: >
@@ -6,12 +6,12 @@ inputs:
       Store it as a secret as anyone who has access to it will be able to post to your Jira board.
     required: true
   component:
-    description: 'Jira component to attach your issue to. This component should exists in your project.'
+    description: "Jira component to attach your issue to. This component should exists in your project."
     required: false
   label:
-    description: 'Label which will trigger a Jira import.'
+    description: "Label which will trigger a Jira import."
     required: true
-    default: 'jira'
+    default: "jira"
 
 runs:
   using: "composite"
@@ -87,8 +87,8 @@ runs:
           trap 'rm -rf -- "$TMPDIR"' EXIT
 
           sudo apt install -y python3-mistletoe
-          echo ${body} > $TMPDIR/body.md
-          echo ${comment} > $TMPDIR/comment.md
+          echo "${body}" > $TMPDIR/body.md
+          echo "${comment}" > $TMPDIR/comment.md
           body=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/body.md)
           comment=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/comment.md)
         fi
