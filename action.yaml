@@ -89,8 +89,8 @@ runs:
           sudo apt install -y python3-mistletoe
           echo "${body}" > $TMPDIR/body.md
           echo "${comment}" > $TMPDIR/comment.md
-          body=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/body.md)
-          comment=$(PYTHONPATH=/usr/share/doc/python3-mistletoe mistletoe -r examples.jira_renderer.JIRARenderer $TMPDIR/comment.md)
+          body=$(mistletoe --renderer mistletoe.contrib.jira_renderer.JiraRenderer $TMPDIR/body.md)
+          comment=$(mistletoe --renderer mistletoe.contrib.jira_renderer.JiraRenderer $TMPDIR/comment.md)
         fi
 
         description="${body}
