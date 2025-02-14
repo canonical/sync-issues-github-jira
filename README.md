@@ -2,6 +2,10 @@
 
 Automation to sync issues from GitHub (using GitHub actions) to Jira (via Jira webhooks)
 
+## Deprecation notice
+
+This repo is now deprecated and not in use anymore by any active project. Please use [the Jira sync bot GitHub app](https://github.com/canonical/gh-jira-sync-bot) instead.
+
 ## Principle
 
 Labelling any GitHub issue with `jira` (can be parameterized) will trigger a Jira issue to be created with the same
