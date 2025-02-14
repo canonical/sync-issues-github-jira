@@ -20,12 +20,15 @@ runs:
     #  run: echo '${{ toJSON(github) }}'
     #  shell: bash
     - name: restrict action to labelled issues and issue comments
+      env:
+        label: ${{ github.event.label.name }}
+        jiraLabel: ${{ inputs.label }}
       run: |
         set -eux
 
         echo "NeedsJiraUpdate=false" >> $GITHUB_ENV
 
-        if [ ${{ github.event_name }} != "issues" ] && [ ${{ github.event_name }} != "issue_comment" ]; then
+        if [ "${{ github.event_name }}" != "issues" ] && [ "${{ github.event_name }}" != "issue_comment" ]; then
           echo "This action only work on issue events. Please use on: issues or issue_comment to use this action."
           exit 1
         fi
@@ -37,7 +40,7 @@ runs:
 
         # Issue creation with label will trigger 2 events and run twice: one create, one labelled.
         # let just focus on labelling then for creating issues Jira-side.
-        if [ ${{ github.event_name }} == "issues" ] && [ ${{ github.event.action }} == "opened" ]; then
+        if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "opened" ]; then
           echo "Ignoring creation of issues as a label will trigger a second event."
           exit 0
         fi
@@ -46,7 +49,7 @@ runs:
         ## check if one label of labels is our jira label
         toconsider=${{ contains(github.event.issue.labels.*.name, inputs.label) }}
         ## second chance, this has just been unlabeled and needs to be deleted on Jira
-        if [ ${{ github.event.action }} == "unlabeled" ] && [ ${{ github.event.label.name }} == ${{ inputs.label }} ]; then
+        if [ "${{ github.event.action }}" == "unlabeled" ] && [ "$label" == "$jiraLabel" ]; then
           toconsider=true
         fi
         if [ "${toconsider}" == false ]; then
@@ -55,7 +58,7 @@ runs:
         fi
 
         # And finally, for the "labeled" event, we are only interested if the new added label is our desired one.
-        if [ ${{ github.event.action }} == "labeled" ] && [ ${{ github.event.label.name }} != ${{ inputs.label }} ]; then
+        if [ "${{ github.event.action }}" == "labeled" ] && [ "$label" != "$jiraLabel" ]; then
           echo "Not interested in this action, skipping"
           exit 0
         fi
